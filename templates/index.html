@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #121212;
+      color: #151212;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #loading {
+      display: none;
+      margin-top: 1rem;
+    }
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin-left: 1rem;
+      font-size: 1rem;
+      background-color: #66a6ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #5593e3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Weather App</h1>
+    <input type="text" id="city" placeholder="Enter city (e.g., Visakhapatnam,IN)">
+    <button onclick="getWeather()">Check Weather</button>
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Fetching weather data...</p>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function getWeather() {
+      const city = document.getElementById('city').value;
+      const resultDiv = document.getElementById('result');
+      const loadingDiv = document.getElementById('loading');
+      resultDiv.innerHTML = '';
+      loadingDiv.style.display = 'block';
+
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Simulate loading
+
+      fetch(`/weather?city=${encodeURIComponent(city)}`)
+        .then(res => res.json())
+        .then(data => {
+          loadingDiv.style.display = 'none';
+          if (data.error) {
+            resultDiv.innerHTML = `<span style="color:red;">${data.error}</span>`;
+          } else {
+            resultDiv.innerHTML = `
+              <strong>${data.city}</strong><br>
+              Condition: ${data.weather}<br>
+              Temperature: ${data.temp}&deg;C (Feels like ${data.feels_like}&deg;C)<br>
+              Humidity: ${data.humidity}%<br>
+              Wind Speed: ${data.wind_speed} m/s
+            `;
+          }
+        })
+        .catch(err => {
+          loadingDiv.style.display = 'none';
+          resultDiv.innerHTML = `<span style="color:red;">Something went wrong</span>`;
+        });
+    }
+  </script>
+</body>
+</html>
